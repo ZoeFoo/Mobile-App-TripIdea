@@ -1,34 +1,37 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { TransportationsService } from './transportations.service';
 import { CreateTransportationDto } from './dto/create-transportation.dto';
 import { UpdateTransportationDto } from './dto/update-transportation.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { Transportation } from './entities/transportation.entity';
 
+@ApiTags('transportations')
 @Controller('transportations')
 export class TransportationsController {
-  constructor(private readonly transportationsService: TransportationsService) {}
+    constructor(private readonly transportationsService: TransportationsService) { }
 
-  @Post()
-  create(@Body() createTransportationDto: CreateTransportationDto) {
-    return this.transportationsService.create(createTransportationDto);
-  }
+    @Post()
+    async create(@Body() createTransportationDto: CreateTransportationDto) {
+        return await this.transportationsService.create(createTransportationDto);
+    }
 
-  @Get()
-  findAll() {
-    return this.transportationsService.findAll();
-  }
+    @Get()
+    async findAll(): Promise<Transportation[]> {
+        return await this.transportationsService.findAll();
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.transportationsService.findOne(+id);
-  }
+    @Get(':id')
+    async findOne(@Param('id') id: string) {
+        return await this.transportationsService.findOne(+id);
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransportationDto: UpdateTransportationDto) {
-    return this.transportationsService.update(+id, updateTransportationDto);
-  }
+    @Patch(':id')
+    async update(@Param('id', ParseIntPipe) id: string, @Body() updateTransportationDto: UpdateTransportationDto) {
+        return await this.transportationsService.update(+id, updateTransportationDto);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.transportationsService.remove(+id);
-  }
+    @Delete(':id')
+    async remove(@Param('id', ParseIntPipe) id: string) {
+        return await this.transportationsService.remove(+id);
+    }
 }

@@ -1,26 +1,58 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { UpdateLikeDto } from './dto/update-like.dto';
+import { PrismaService } from 'nestjs-prisma/dist/prisma.service';
+import { Like } from './entities/like.entity';
 
 @Injectable()
 export class LikesService {
-  create(createLikeDto: CreateLikeDto) {
-    return 'This action adds a new like';
-  }
+    constructor(private prisma: PrismaService) { }
 
-  findAll() {
-    return `This action returns all likes`;
-  }
+    async create(travelPlanId: number, likeUserId: number): Promise<Like> {
+        let like = await this.prisma.like.create({ data: { travelPlanId, likeUserId } })
+        // console.log(like)
+        return like;
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} like`;
-  }
+    async findAll(): Promise<Like[]> {
+        return await this.prisma.like.findMany();
+    }
 
-  update(id: number, updateLikeDto: UpdateLikeDto) {
-    return `This action updates a #${id} like`;
-  }
+    async findByPlanId(travelPlanId: number): Promise<Like[]> {
+        let result = await this.prisma.like.findMany({
+            where: { travelPlanId }
+        });
 
-  remove(id: number) {
-    return `This action removes a #${id} like`;
-  }
+        return result;
+    }
+
+    async findOneByTravelPlanIdAndLikeUserId(travelPlanId: number, likeUserId: number) {
+
+        let planLikes = await this.prisma.like.findMany(
+            {
+                where: {
+                    travelPlanId, likeUserId
+                }
+            })
+
+        if (!planLikes) throw new NotFoundException('Like not found!')
+        return planLikes;
+    }
+
+    async findOne(id: number) {
+        return await this.prisma.like.findFirst();
+    }
+
+    async update(id: number, updateLikeDto: UpdateLikeDto) {
+        let result = await this.prisma.like.update({
+            where: { id },
+            data: updateLikeDto
+        })
+        return result;
+    }
+
+    async remove(id: number) {
+        let result = await this.prisma.like.delete({ where: { id } })
+        return result;
+    }
 }

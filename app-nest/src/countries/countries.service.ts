@@ -1,26 +1,40 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'nestjs-prisma';
 import { CreateCountryDto } from './dto/create-country.dto';
 import { UpdateCountryDto } from './dto/update-country.dto';
+import { Country } from './entities/country.entity';
 
 @Injectable()
 export class CountriesService {
-  create(createCountryDto: CreateCountryDto) {
-    return 'This action adds a new country';
-  }
+    constructor(private prisma: PrismaService) { }
 
-  findAll() {
-    return `This action returns all countries`;
-  }
+    async create(createCountryDto: CreateCountryDto): Promise<Country> {
+        let country = await this.prisma.country.create({ data: { ...createCountryDto } })
+        //console.log(country)
+        return country;
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} country`;
-  }
+    async findAll(): Promise<Country[]> {
+        return await this.prisma.country.findMany();
+    }
 
-  update(id: number, updateCountryDto: UpdateCountryDto) {
-    return `This action updates a #${id} country`;
-  }
+    async findOne(id: number) {
+        let foundCountry = await this.prisma.country.findFirst({ where: { id } })
 
-  remove(id: number) {
-    return `This action removes a #${id} country`;
-  }
+        if (!foundCountry) throw new NotFoundException('Country not found!')
+        return foundCountry;
+    }
+
+    async update(id: number, updateCountryDto: UpdateCountryDto) {
+        let result = await this.prisma.country.update({
+            where: { id },
+            data: updateCountryDto
+        })
+        return result;
+    }
+
+    async remove(id: number) {
+        let result = await this.prisma.country.delete({ where: { id } })
+        return result;
+    }
 }

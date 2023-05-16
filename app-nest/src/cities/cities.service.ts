@@ -1,26 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCityDto } from './dto/create-city.dto';
 import { UpdateCityDto } from './dto/update-city.dto';
+import { PrismaService } from 'nestjs-prisma/dist/prisma.service';
+import { City } from './entities/city.entity';
+
 
 @Injectable()
 export class CitiesService {
-  create(createCityDto: CreateCityDto) {
-    return 'This action adds a new city';
-  }
+    constructor(private prisma: PrismaService) { }
 
-  findAll() {
-    return `This action returns all cities`;
-  }
+    async create(createCityDto: CreateCityDto): Promise<City> {
+        let city = await this.prisma.city.create({ data: { ...createCityDto } })
+        //console.log(city)
+        return city[0];
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} city`;
-  }
+    async findAll(): Promise<City[]> {
+        return await this.prisma.city.findMany();
+    }
 
-  update(id: number, updateCityDto: UpdateCityDto) {
-    return `This action updates a #${id} city`;
-  }
+    async findCities(id: number): Promise<any> {
+        let foundCities = await this.prisma.city.findMany({ where: { areaId: id } });
 
-  remove(id: number) {
-    return `This action removes a #${id} city`;
-  }
+        if (!foundCities) throw new NotFoundException('City not found!');
+        return foundCities;
+    }
+
+    async findOne(id: number) {
+        let foundCity = await this.prisma.city.findFirst({ where: { id } })
+
+        if (!foundCity) throw new NotFoundException('City not found!');
+        return foundCity;
+    }
+
+    async update(id: number, updateCityDto: UpdateCityDto) {
+        let result = await this.prisma.city.update({
+            where: { id },
+            data: updateCityDto
+        })
+        return result;
+    }
+
+    async remove(id: number) {
+        let result = await this.prisma.city.delete({ where: { id } })
+        return result;
+    }
 }
