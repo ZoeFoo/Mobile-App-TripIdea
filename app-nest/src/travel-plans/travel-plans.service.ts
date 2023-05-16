@@ -183,6 +183,100 @@ export class TravelPlansService {
         return hitPlan;
     }
 
+    async findShare(id: number, name: string): Promise<any[]> {
+        const users = await this.prisma.user.findMany({
+            where: { id }
+        });
+        let userPlans;
+        let sharePlans;
+        const plans = [];
+
+        if (name) {
+            const sharePlansresult = await this.prisma.share.findMany({
+                where: {
+                    shareUserId: id,
+                }
+            });
+
+            if (sharePlansresult?.length > 0) {
+                for await (let sharePlan of sharePlans) {
+                    sharePlans = await this.prisma.travelPlan.findMany({
+                        where: {
+                            id: sharePlan.travelPlanId,
+                            name: { contains: name },
+                        },
+                        include: {
+                            days: true,
+                            likes: true,
+                            travelPlanChildren: true
+                        }
+                    });
+                }
+            }
+
+            userPlans = await this.prisma.travelPlan.findMany({
+                where: {
+                    authorId: id,
+                    name: { contains: name },
+                },
+                include: {
+                    days: true,
+                    likes: true,
+                    travelPlanChildren: true
+                }
+            });
+        } else {
+            const sharePlansresult = await this.prisma.share.findMany({
+                where: {
+                    shareUserId: id,
+                }
+            });
+
+            if (sharePlansresult?.length > 0) {
+                for await (let sharePlan of sharePlans) {
+                    sharePlans = await this.prisma.travelPlan.findMany({
+                        where: {
+                            id: sharePlan.travelPlanId,
+                        },
+                        include: {
+                            days: true,
+                            likes: true,
+                            travelPlanChildren: true
+                        }
+                    });
+                }
+            }
+
+            userPlans = await this.prisma.travelPlan.findMany({
+                where: { authorId: id },
+                include: {
+                    days: true,
+                    likes: true,
+                    travelPlanChildren: true
+                }
+            });
+        };
+
+        for (let sharePlan of sharePlans) {
+            const user = users.filter(({ id }) => id == sharePlan.authorId)[0];
+
+            const share = { ...sharePlan, userNickname: user?.nickname };
+
+            plans.push(share);
+        }
+
+        for (let plan of userPlans) {
+            const user = users.filter(({ id }) => id == plan.authorId)[0];
+
+            const userPlan = { ...plan, userNickname: user?.nickname };
+
+            plans.push(userPlan);
+        }
+
+        return plans;
+
+    }
+
     async findPlansCreatedByUser(userId: number): Promise<any[]> {
         const travelPlans = await this.prisma.travelPlan.findMany({
             where: { authorId: userId },

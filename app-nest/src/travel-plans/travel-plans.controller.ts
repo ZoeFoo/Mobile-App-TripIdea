@@ -98,6 +98,11 @@ export class TravelPlansController {
         return await this.travelPlansService.findPlansCreatedByUser(userObject.id);
     }
 
+    @Get('/sharePlan/:id')
+    async findShare(@Param('id') id: string, @Query('name') name: string): Promise<any> {
+        return await this.travelPlansService.findShare(+id, name);
+    }
+
     @Patch(':id')
     @UseInterceptors(FileInterceptor('thumbnailFile'))
     async update(
