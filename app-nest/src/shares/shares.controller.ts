@@ -5,7 +5,7 @@ import { UpdateShareDto } from './dto/update-share.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Share } from './entities/share.entity';
 
-@ApiTags('travel-plan-share')
+@ApiTags('shares')
 @Controller('shares')
 export class SharesController {
   constructor(private readonly sharesService: SharesService) {}

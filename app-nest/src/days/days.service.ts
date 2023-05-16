@@ -1,26 +1,51 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'nestjs-prisma/dist/prisma.service';
 import { CreateDayDto } from './dto/create-day.dto';
 import { UpdateDayDto } from './dto/update-day.dto';
+import { Day } from './entities/day.entity';
 
 @Injectable()
 export class DaysService {
-  create(createDayDto: CreateDayDto) {
-    return 'This action adds a new day';
-  }
+    constructor(private prisma: PrismaService) { }
 
-  findAll() {
-    return `This action returns all days`;
-  }
+    async create(createDayDto: CreateDayDto): Promise<Day> {
+        let day = await this.prisma.day.create({ data: { ...createDayDto } })
+        console.log(day);
+        return day;
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} day`;
-  }
+    async findAll(): Promise<Day[]> {
+        return await this.prisma.day.findMany({
+            include: {
+                locations: true
+            }
+        });
+    }
 
-  update(id: number, updateDayDto: UpdateDayDto) {
-    return `This action updates a #${id} day`;
-  }
+    async findOne(id: number) {
+        let foundDay = await this.prisma.day.findFirst({
+            where: { id },
+            include: {
+                locations: true
+            }
+        })
 
-  remove(id: number) {
-    return `This action removes a #${id} day`;
-  }
+        console.log('foundDay', foundDay)
+
+        if (!foundDay) throw new NotFoundException('Day not found!')
+        return foundDay;
+    }
+
+    async update(id: number, updateDayDto: UpdateDayDto) {
+        let result = await this.prisma.day.update({
+            where: { id },
+            data: updateDayDto
+        })
+        return result;
+    }
+
+    async remove(id: number) {
+        let result = await this.prisma.day.delete({ where: { id } })
+        return result
+    }
 }

@@ -14,7 +14,7 @@ const allowedMimeTypes = [
 
 let defaultLocationImgFile = 'default_locationImg.jpeg';
 
-@ApiTags('travel-plan-details')
+@ApiTags('locations')
 @Controller('locations')
 export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}
