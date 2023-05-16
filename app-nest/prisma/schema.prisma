@@ -23,11 +23,11 @@ model User {
   createdAt        DateTime @default(now()) @db.Timestamp(6)
   updatedAt        DateTime @default(now()) @db.Timestamp(6)
 
-  followers       Follower[]      @relation("follower")
-  followings      Follower[]      @relation("following")
-  plans           TravelPlan[]
-  likes           Like[]          @relation("likeUser")
-  shares          Share[]
+  followers  Follower[]   @relation("follower")
+  followings Follower[]   @relation("following")
+  plans      TravelPlan[]
+  likes      Like[]       @relation("likeUser")
+  shares     Share[]
 }
 
 enum Role {
@@ -54,8 +54,8 @@ model Country {
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @default(now()) @db.Timestamp(6)
 
-  areas             Area[]
-  locations         Location[]
+  areas     Area[]
+  locations Location[]
 }
 
 model Area {
@@ -67,8 +67,8 @@ model Area {
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @default(now()) @db.Timestamp(6)
 
-  cities            City[]
-  locations         Location[]
+  cities    City[]
+  locations Location[]
 }
 
 model City {
@@ -80,7 +80,7 @@ model City {
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @default(now()) @db.Timestamp(6)
 
-  locations         Location[]
+  locations Location[]
 }
 
 model TravelPlan {
@@ -98,8 +98,8 @@ model TravelPlan {
   updatedAt       DateTime    @default(now()) @db.Timestamp(6)
 
   days               Day[]
-  likes              Like[]             @relation("travelPlan")
-  travelPlanChildren TravelPlan[]       @relation("referencePlan")
+  likes              Like[]       @relation("travelPlan")
+  travelPlanChildren TravelPlan[] @relation("referencePlan")
   shares             Share[]
 }
 
@@ -116,7 +116,7 @@ model Day {
   createdAt    DateTime   @default(now()) @db.Timestamp(6)
   updatedAt    DateTime   @default(now()) @db.Timestamp(6)
 
-  locations     Location[]
+  locations Location[]
 }
 
 model Location {
@@ -132,7 +132,7 @@ model Location {
   locationName     String           @db.VarChar(255)
   locationImg      String?          @db.Text
   category         LocationCategory @relation(fields: [categoryId], references: [id])
-  categoryId       Int?             @db.Integer
+  categoryId       Int              @db.Integer
   address          String?          @db.Text
   tel              String?          @db.VarChar(20)
   startTime        String           @db.VarChar(10)
@@ -167,19 +167,19 @@ model Like {
 }
 
 model Transportation {
-  id           Int        @id @default(autoincrement())
-  name         String     @db.VarChar(100)
-  createdAt    DateTime   @default(now()) @db.Timestamp(6)
-  updatedAt    DateTime   @default(now()) @db.Timestamp(6)
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
 
-  locations     Location[]
+  locations Location[]
 }
 
 model LocationCategory {
-  id           Int        @id @default(autoincrement())
-  name         String     @db.VarChar(100)
-  createdAt    DateTime   @default(now()) @db.Timestamp(6)
-  updatedAt    DateTime   @default(now()) @db.Timestamp(6)
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
 
-  locations     Location[]
+  locations Location[]
 }
