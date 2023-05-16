@@ -1,26 +1,70 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotAcceptableException } from '@nestjs/common';
+import { PrismaService } from 'nestjs-prisma';
 import { CreateFollowerDto } from './dto/create-follower.dto';
 import { UpdateFollowerDto } from './dto/update-follower.dto';
+import { Follower } from './entities/follower.entity';
 
 @Injectable()
 export class FollowersService {
-  create(createFollowerDto: CreateFollowerDto) {
-    return 'This action adds a new follower';
-  }
+    constructor(
+        private prisma: PrismaService,
+    ) { }
 
-  findAll() {
-    return `This action returns all followers`;
-  }
+    async create(createFollowerDto: CreateFollowerDto): Promise<Follower> {
+        if (createFollowerDto.followerId === createFollowerDto.followingId)
+            throw new NotAcceptableException(
+                `Cannot insert userFollow! 
+      followerId: ${createFollowerDto.followerId}, 
+      followingId: ${createFollowerDto.followingId}
+      `)
 
-  findOne(id: number) {
-    return `This action returns a #${id} follower`;
-  }
+        let userFollow = await this.prisma.follower.create({
+            data: { ...createFollowerDto },
+            include: {
+                follower: {
+                    include: {
+                        followers: true,
+                        followings: true,
+                        plans: false,
+                        likes: false
+                    }
+                },
+                following: {
+                    include: {
+                        followers: true,
+                        followings: true,
+                        plans: false,
+                        likes: false
+                    }
+                },
+            }
+        });
 
-  update(id: number, updateFollowerDto: UpdateFollowerDto) {
-    return `This action updates a #${id} follower`;
-  }
+        // 如insert失敗，可能是已存在重疊follow關係, e.g. 1 -> 3, 1 -> 3
+        if (!userFollow)
+            throw new NotAcceptableException(
+                `Cannot insert userFollow! 
+      followerId: ${createFollowerDto.followerId}, 
+      followingId: ${createFollowerDto.followingId}
+      `)
+        console.log('userFollow: ', userFollow);
 
-  remove(id: number) {
-    return `This action removes a #${id} follower`;
-  }
+        return userFollow;
+    }
+
+    findAll() {
+        return `This action returns all followers`;
+    }
+
+    findOne(id: number) {
+        return `This action returns a #${id} follower`;
+    }
+
+    update(id: number, updateFollowerDto: UpdateFollowerDto) {
+        return `This action updates a #${id} follower`;
+    }
+
+    remove(id: number) {
+        return `This action removes a #${id} follower`;
+    }
 }
