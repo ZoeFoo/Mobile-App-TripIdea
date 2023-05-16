@@ -35,9 +35,9 @@ export class Location {
     locationImg: string;
 
     @ApiProperty()
-    @IsString()
+    @IsInt()
     @IsNotEmpty()
-    category: string;
+    categoryId: number;
 
     @ApiProperty()
     @IsString()
@@ -58,8 +58,9 @@ export class Location {
     endTime: string;
 
     @ApiProperty()
-    @IsString()
-    transportation: string;
+    @IsInt()
+    @IsNotEmpty()
+    transportationId: number;
 
     @ApiProperty()
     @IsString()
