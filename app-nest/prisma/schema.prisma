@@ -120,27 +120,28 @@ model Day {
 }
 
 model Location {
-  id               Int            @id @default(autoincrement())
-  day              Day            @relation(fields: [dayId], references: [id])
-  dayId            Int            @db.Integer
-  country          Country        @relation(fields: [countryId], references: [id])
-  countryId        Int            @db.Integer
-  area             Area?          @relation(fields: [areaId], references: [id])
-  areaId           Int?           @db.Integer
-  city             City?          @relation(fields: [cityId], references: [id])
-  cityId           Int?           @db.Integer
-  locationName     String         @db.VarChar(255)
-  locationImg      String?        @db.Text
-  category         String         @db.VarChar(255)
-  address          String?        @db.Text
-  tel              String?        @db.VarChar(20)
-  startTime        String         @db.VarChar(10)
-  endTime          String         @db.VarChar(10)
-  transportation   Transportation @relation(fields: [transportationId], references: [id])
-  transportationId Int            @db.Integer
-  notes            String?        @db.Text
-  createdAt        DateTime       @default(now()) @db.Timestamp(6)
-  updatedAt        DateTime       @default(now()) @db.Timestamp(6)
+  id               Int              @id @default(autoincrement())
+  day              Day              @relation(fields: [dayId], references: [id])
+  dayId            Int              @db.Integer
+  country          Country          @relation(fields: [countryId], references: [id])
+  countryId        Int              @db.Integer
+  area             Area?            @relation(fields: [areaId], references: [id])
+  areaId           Int?             @db.Integer
+  city             City?            @relation(fields: [cityId], references: [id])
+  cityId           Int?             @db.Integer
+  locationName     String           @db.VarChar(255)
+  locationImg      String?          @db.Text
+  category         LocationCategory @relation(fields: [categoryId], references: [id])
+  categoryId       Int?             @db.Integer
+  address          String?          @db.Text
+  tel              String?          @db.VarChar(20)
+  startTime        String           @db.VarChar(10)
+  endTime          String           @db.VarChar(10)
+  transportation   Transportation   @relation(fields: [transportationId], references: [id])
+  transportationId Int              @db.Integer
+  notes            String?          @db.Text
+  createdAt        DateTime         @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime         @default(now()) @db.Timestamp(6)
 }
 
 model Share {
@@ -149,6 +150,8 @@ model Share {
   travelPlanId Int        @db.Integer
   shareUser    User       @relation(fields: [shareUserId], references: [id])
   shareUserId  Int        @db.Integer
+  createdAt    DateTime   @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime   @default(now()) @db.Timestamp(6)
 }
 
 model Like {
@@ -166,7 +169,17 @@ model Like {
 model Transportation {
   id           Int        @id @default(autoincrement())
   name         String     @db.VarChar(100)
+  createdAt    DateTime   @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime   @default(now()) @db.Timestamp(6)
 
   locations     Location[]
 }
 
+model LocationCategory {
+  id           Int        @id @default(autoincrement())
+  name         String     @db.VarChar(100)
+  createdAt    DateTime   @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime   @default(now()) @db.Timestamp(6)
+
+  locations     Location[]
+}
