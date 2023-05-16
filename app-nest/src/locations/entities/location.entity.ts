@@ -10,7 +10,7 @@ export class Location {
     @ApiProperty()
     @IsInt()
     @IsNotEmpty()
-    travelPlanDayId: number;
+    dayId: number;
 
     @ApiProperty()
     @IsInt()

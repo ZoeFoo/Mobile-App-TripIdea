@@ -9,3 +9,156 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id               Int      @id @default(autoincrement())
+  email            String   @unique @db.VarChar(255)
+  password         String   @db.VarChar()
+  nickname         String   @db.VarChar(255)
+  gender           String?  @db.VarChar(6)
+  phone            String?  @db.VarChar(8)
+  icon             String?  @db.VarChar(255)
+  selfIntroduction String?  @db.Text
+  role             Role     @default(USER)
+  createdAt        DateTime @default(now()) @db.Timestamp(6)
+  updatedAt        DateTime @default(now()) @db.Timestamp(6)
+
+  followers       Follower[]      @relation("follower")
+  followings      Follower[]      @relation("following")
+  plans           TravelPlan[]
+  likes           Like[]          @relation("likeUser")
+  shares          Share[]
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Follower {
+  id          Int      @id @default(autoincrement())
+  follower    User     @relation("follower", fields: [followerId], references: [id])
+  followerId  Int      @db.Integer
+  following   User     @relation("following", fields: [followingId], references: [id])
+  followingId Int      @db.Integer
+  createdAt   DateTime @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime @default(now()) @db.Timestamp(6)
+
+  @@unique([followerId, followingId])
+}
+
+model Country {
+  id        Int      @id @default(autoincrement())
+  engName   String   @db.VarChar(255)
+  chName    String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
+
+  areas             Area[]
+  locations         Location[]
+}
+
+model Area {
+  id        Int      @id @default(autoincrement())
+  engName   String   @db.VarChar(255)
+  chName    String   @db.VarChar(255)
+  country   Country  @relation(fields: [countryId], references: [id])
+  countryId Int      @db.Integer
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
+
+  cities            City[]
+  locations         Location[]
+}
+
+model City {
+  id        Int      @id @default(autoincrement())
+  engName   String   @db.VarChar(255)
+  chName    String   @db.VarChar(255)
+  area      Area     @relation(fields: [areaId], references: [id])
+  areaId    Int      @db.Integer
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @default(now()) @db.Timestamp(6)
+
+  locations         Location[]
+}
+
+model TravelPlan {
+  id              Int         @id @default(autoincrement())
+  author          User        @relation(fields: [authorId], references: [id])
+  authorId        Int         @db.Integer
+  name            String      @db.VarChar(255)
+  referencePlan   TravelPlan? @relation("referencePlan", fields: [referencePlanId], references: [id])
+  referencePlanId Int?        @db.Integer
+  startDay        DateTime    @db.Timestamp(6)
+  endDay          DateTime    @db.Timestamp(6)
+  thumbnail       String?     @db.Text
+  status          Status      @default(PUBLIC)
+  createdAt       DateTime    @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime    @default(now()) @db.Timestamp(6)
+
+  days               Day[]
+  likes              Like[]             @relation("travelPlan")
+  travelPlanChildren TravelPlan[]       @relation("referencePlan")
+  shares             Share[]
+}
+
+enum Status {
+  PUBLIC
+  PRIVATE
+}
+
+model Day {
+  id           Int        @id @default(autoincrement())
+  travelPlan   TravelPlan @relation(fields: [travelPlanId], references: [id])
+  travelPlanId Int        @db.Integer
+  whichDay     Int        @db.Integer
+  createdAt    DateTime   @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime   @default(now()) @db.Timestamp(6)
+
+  locations     Location[]
+}
+
+model Location {
+  id              Int           @id @default(autoincrement())
+  day             Day           @relation(fields: [dayId], references: [id])
+  dayId           Int           @db.Integer
+  country         Country       @relation(fields: [countryId], references: [id])
+  countryId       Int           @db.Integer
+  area            Area?         @relation(fields: [areaId], references: [id])
+  areaId          Int?          @db.Integer
+  city            City?         @relation(fields: [cityId], references: [id])
+  cityId          Int?          @db.Integer
+  locationName    String        @db.VarChar(255)
+  locationImg     String?       @db.Text
+  category        String        @db.VarChar(255)
+  address         String?       @db.Text
+  tel             String?       @db.VarChar(20)
+  startTime       String        @db.VarChar(10)
+  endTime         String        @db.VarChar(10)
+  transportation  String?       @db.VarChar(50)
+  notes           String?       @db.Text
+  createdAt       DateTime      @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime      @default(now()) @db.Timestamp(6)
+}
+
+model Share {
+  id           Int        @id @default(autoincrement())
+  travelPlan   TravelPlan @relation(fields: [travelPlanId], references: [id])
+  travelPlanId Int        @db.Integer
+  shareUser    User       @relation(fields: [shareUserId], references: [id])
+  shareUserId  Int        @db.Integer
+}
+
+model Like {
+  id           Int        @id @default(autoincrement())
+  likeUser     User       @relation("likeUser", fields: [likeUserId], references: [id])
+  likeUserId   Int        @db.Integer
+  travelPlan   TravelPlan @relation("travelPlan", fields: [travelPlanId], references: [id])
+  travelPlanId Int        @db.Integer
+  createdAt    DateTime   @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime   @default(now()) @db.Timestamp(6)
+
+  @@unique([likeUserId, travelPlanId])
+}
+
