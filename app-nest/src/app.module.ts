@@ -15,6 +15,7 @@ import { SharesModule } from './shares/shares.module';
 import { LoggerMiddleware } from './logger/logger.middleware';
 import { LocationCategoryModule } from './location-category/location-category.module';
 import { TransportationsModule } from './transportations/transportations.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
     imports: [
@@ -30,7 +31,8 @@ import { TransportationsModule } from './transportations/transportations.module'
         FollowersModule,
         SharesModule,
         LocationCategoryModule,
-        TransportationsModule
+        TransportationsModule,
+        AuthModule
     ],
     controllers: [AppController],
     providers: [AppService],
