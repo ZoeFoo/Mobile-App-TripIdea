@@ -1,26 +1,47 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'nestjs-prisma/dist/prisma.service';
 import { CreateTransportationDto } from './dto/create-transportation.dto';
 import { UpdateTransportationDto } from './dto/update-transportation.dto';
+import { Transportation } from './entities/transportation.entity';
 
 @Injectable()
 export class TransportationsService {
-  create(createTransportationDto: CreateTransportationDto) {
-    return 'This action adds a new transportation';
-  }
+    constructor(private prisma: PrismaService) { }
 
-  findAll() {
-    return `This action returns all transportations`;
-  }
+    async create(createTransportationDto: CreateTransportationDto): Promise<Transportation> {
+        let transportation = await this.prisma.transportation.create({
+            data: { ...createTransportationDto }
+        })
+        console.log(transportation)
+        return transportation;
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transportation`;
-  }
+    async findAll(): Promise<Transportation[]> {
+        return await this.prisma.transportation.findMany({
+            include: { locations: false }
+        });
+    }
 
-  update(id: number, updateTransportationDto: UpdateTransportationDto) {
-    return `This action updates a #${id} transportation`;
-  }
+    async findOne(id: number) {
+        let foundTransportation = await this.prisma.transportation.findFirst({
+            where: { id },
+            include: { locations: false }
+        })
 
-  remove(id: number) {
-    return `This action removes a #${id} transportation`;
-  }
+        if (!foundTransportation) throw new NotFoundException('Transportation not found')
+        return foundTransportation;
+    }
+
+    async update(id: number, updateTransportationDto: UpdateTransportationDto) {
+        let result = await this.prisma.transportation.update({
+            where: { id },
+            data: updateTransportationDto
+        })
+        return result;
+    }
+
+    async remove(id: number) {
+        let result = await this.prisma.transportation.delete({ where: { id } })
+        return result;
+    }
 }
