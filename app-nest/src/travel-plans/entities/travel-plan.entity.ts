@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsInt, IsNotEmpty, IsString } from "class-validator";
+import { Status } from '@prisma/client';
 
 export class TravelPlan {
     @ApiProperty({ default: 1 })
